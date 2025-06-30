@@ -12,7 +12,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <style>
-    /* Тот же стиль, что и раньше */
     * {
       box-sizing: border-box;
     }
@@ -179,8 +178,8 @@
   <ul id="shopping-list"></ul>
 
   <!-- IDB библиотека -->
-  <script src="idb.js"></script>
-  <!-- Основной скрипт -->
+  <script src="https://cdn.jsdelivr.net/npm/idb @7/build/umd.min.js"></script>
+
   <script>
     const form = document.getElementById('shopping-form');
     const input = document.getElementById('item-input');
@@ -194,7 +193,9 @@
     const dbPromise = idb.openDB('shopping-list-db', 1, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('items')) {
-          db.createObjectStore('items', { keyPath: 'id' });
+          const store = db.createObjectStore('items', { keyPath: 'id' });
+          store.createIndex('text', 'text');
+          store.createIndex('completed', 'completed');
         }
       }
     });

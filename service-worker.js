@@ -4,7 +4,6 @@ const ASSETS_TO_CACHE = [
   '/shopping-list/index.html',
   '/shopping-list/offline.html',
   '/shopping-list/manifest.json',
-  '/shopping-list/idb.js',
   '/shopping-list/service-worker.js',
   '/shopping-list/icons/icon-192x192.png',
   '/shopping-list/icons/icon-512x512.png'
@@ -33,19 +32,19 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
 
+  // HTML запросы
   if (request.headers.get('Accept').includes('text/html')) {
-    // HTML-запросы
     event.respondWith(
       fetch(request).catch(() => {
-        return caches.match('/offline.html');
+        return caches.match('/shopping-list/offline.html');
       })
     );
   } else {
-    // Другие запросы
+    // Все остальные запросы
     event.respondWith(
       caches.match(request).then(response => {
         return response || fetch(request).catch(() => {
-          return caches.match('/offline.html');
+          // Можно добавить дополнительную логику оффлайн-синхронизации
         });
       })
     );
