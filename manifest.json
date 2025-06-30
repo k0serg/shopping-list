@@ -1,7 +1,7 @@
 {
   "name": "Список покупок",
   "short_name": "Покупки",
-  "start_url": "shopping-list/index.html",
+  "start_url": "/shopping-list/",
   "display": "standalone",
   "background_color": "#f4f4f4",
   "theme_color": "#28a745",
