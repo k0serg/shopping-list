@@ -1,0 +1,21 @@
+{
+  "name": "Список покупок",
+  "short_name": "Покупки",
+  "start_url": "shopping-list/index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f4",
+  "theme_color": "#28a745",
+  "description": "Простой список покупок с возможностью сохранения и работы оффлайн.",
+  "icons": [
+    {
+      "src": "shopping-list/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "shopping-list/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

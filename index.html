@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🛒 Список покупок</title>
+
+  <!-- Подключение манифеста -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+
+    #shopping-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #item-input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #add-button {
+      padding: 12px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #add-button:hover {
+      background-color: #218838;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 8px;
+      margin: 0 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: #e9ecef;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background-color: #28a745;
+      color: white;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 0;
+    }
+
+    li {
+      background-color: white;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .item-text {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .delete-button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    .delete-button:hover {
+      background-color: #c82333;
+    }
+
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #999;
+      border-radius: 4px;
+      outline: none;
+      margin-right: 10px;
+      cursor: pointer;
+      background-color: white;
+    }
+
+    input[type="checkbox"]:checked {
+      background-color: #28a745;
+      position: relative;
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: "✓";
+      color: white;
+      font-size: 16px;
+      position: absolute;
+      top: 1px;
+      left: 4px;
+    }
+
+    .completed .item-text {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    @media (min-width: 600px) {
+      .filters {
+        justify-content: center;
+      }
+
+      .filter-btn {
+        margin: 0 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🛒 Список покупок</h1>
+
+  <form id="shopping-form">
+    <input type="text" id="item-input" placeholder="Введите товар..." required />
+    <button type="submit" id="add-button">Добавить</button>
+  </form>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">Все</button>
+    <button class="filter-btn" data-filter="active">Активные</button>
+    <button class="filter-btn" data-filter="completed">Выполненные</button>
+  </div>
+
+  <ul id="shopping-list"></ul>
+
+  <script>
+    const form = document.getElementById('shopping-form');
+    const input = document.getElementById('item-input');
+    const list = document.getElementById('shopping-list');
+    const filters = document.querySelectorAll('.filter-btn');
+
+    let items = JSON.parse(localStorage.getItem('shoppingList')) || [];
+    let currentFilter = 'all';
+
+    function saveToLocalStorage() {
+      localStorage.setItem('shoppingList', JSON.stringify(items));
+    }
+
+    function renderList() {
+      list.innerHTML = '';
+      const filteredItems = items.filter(item => {
+        if (currentFilter === 'all') return true;
+        if (currentFilter === 'active') return !item.completed;
+        if (currentFilter === 'completed') return item.completed;
+      });
+
+      filteredItems.forEach((item, index) => {
+        const li = document.createElement('li');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = item.completed;
+
+        const span = document.createElement('span');
+        span.className = 'item-text';
+        span.textContent = item.text;
+
+        if (item.completed) {
+          li.classList.add('completed');
+        }
+
+        checkbox.addEventListener('change', function () {
+          item.completed = checkbox.checked;
+          if (checkbox.checked) {
+            li.classList.add('completed');
+          } else {
+            li.classList.remove('completed');
+          }
+          saveToLocalStorage();
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Удалить';
+        deleteButton.className = 'delete-button';
+
+        deleteButton.addEventListener('click', function () {
+          items.splice(index, 1);
+          saveToLocalStorage();
+          renderList();
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(deleteButton);
+
+        list.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const itemText = input.value.trim();
+      if (itemText === '') return;
+
+      items.push({ text: itemText, completed: false });
+      saveToLocalStorage();
+      renderList();
+
+      input.value = '';
+      input.focus();
+    });
+
+    filters.forEach(btn => {
+      btn.addEventListener('click', function () {
+        filters.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderList();
+      });
+    });
+
+    // Инициализация
+    renderList();
+
+    // Регистрация Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('shopping-list/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker зарегистрирован:', registration);
+          })
+          .catch(error => {
+            console.log('Ошибка регистрации Service Worker:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
