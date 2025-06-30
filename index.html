@@ -12,6 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <style>
+    /* Тот же стиль, что и раньше */
     * {
       box-sizing: border-box;
     }
@@ -177,17 +178,49 @@
 
   <ul id="shopping-list"></ul>
 
+  <!-- IDB библиотека -->
+  <script src="idb.js"></script>
+  <!-- Основной скрипт -->
   <script>
     const form = document.getElementById('shopping-form');
     const input = document.getElementById('item-input');
     const list = document.getElementById('shopping-list');
     const filters = document.querySelectorAll('.filter-btn');
 
-    let items = JSON.parse(localStorage.getItem('shoppingList')) || [];
+    let items = [];
     let currentFilter = 'all';
 
-    function saveToLocalStorage() {
-      localStorage.setItem('shoppingList', JSON.stringify(items));
+    // Подключение IndexedDB
+    const dbPromise = idb.openDB('shopping-list-db', 1, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains('items')) {
+          db.createObjectStore('items', { keyPath: 'id' });
+        }
+      }
+    });
+
+    async function getItemsFromDB() {
+      const tx = await dbPromise.transaction('items', 'readonly');
+      const store = await tx.objectStore('items');
+      return await store.getAll();
+    }
+
+    async function saveToDB(item) {
+      const tx = await dbPromise.transaction('items', 'readwrite');
+      const store = await tx.objectStore('items');
+      await store.put(item);
+    }
+
+    async function deleteFromDB(id) {
+      const tx = await dbPromise.transaction('items', 'readwrite');
+      const store = await tx.objectStore('items');
+      await store.delete(id);
+    }
+
+    async function syncData() {
+      const allItems = await getItemsFromDB();
+      items = allItems || [];
+      renderList();
     }
 
     function renderList() {
@@ -213,24 +246,23 @@
           li.classList.add('completed');
         }
 
-        checkbox.addEventListener('change', function () {
+        checkbox.addEventListener('change', async function () {
           item.completed = checkbox.checked;
           if (checkbox.checked) {
             li.classList.add('completed');
           } else {
             li.classList.remove('completed');
           }
-          saveToLocalStorage();
+          await saveToDB(item);
         });
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Удалить';
         deleteButton.className = 'delete-button';
 
-        deleteButton.addEventListener('click', function () {
-          items.splice(index, 1);
-          saveToLocalStorage();
-          renderList();
+        deleteButton.addEventListener('click', async function () {
+          await deleteFromDB(item.id);
+          await syncData();
         });
 
         li.appendChild(checkbox);
@@ -241,15 +273,20 @@
       });
     }
 
-    form.addEventListener('submit', function (event) {
+    form.addEventListener('submit', async function (event) {
       event.preventDefault();
 
       const itemText = input.value.trim();
       if (itemText === '') return;
 
-      items.push({ text: itemText, completed: false });
-      saveToLocalStorage();
-      renderList();
+      const newItem = {
+        id: Date.now(),
+        text: itemText,
+        completed: false
+      };
+
+      await saveToDB(newItem);
+      await syncData();
 
       input.value = '';
       input.focus();
@@ -265,7 +302,7 @@
     });
 
     // Инициализация
-    renderList();
+    syncData();
 
     // Регистрация Service Worker
     if ('serviceWorker' in navigator) {

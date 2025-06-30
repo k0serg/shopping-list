@@ -1,8 +1,10 @@
-const CACHE_NAME = 'shopping-list-cache-v1';
+const CACHE_NAME = 'shopping-list-cache-v2';
 const ASSETS_TO_CACHE = [
   '/shopping-list',
   '/shopping-list/index.html',
+  '/shopping-list/offline.html',
   '/shopping-list/manifest.json',
+  '/shopping-list/idb.js',
   '/shopping-list/service-worker.js',
   '/shopping-list/icons/icon-192x192.png',
   '/shopping-list/icons/icon-512x512.png'
@@ -29,9 +31,23 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
+  const request = event.request;
+
+  if (request.headers.get('Accept').includes('text/html')) {
+    // HTML-запросы
+    event.respondWith(
+      fetch(request).catch(() => {
+        return caches.match('/offline.html');
+      })
+    );
+  } else {
+    // Другие запросы
+    event.respondWith(
+      caches.match(request).then(response => {
+        return response || fetch(request).catch(() => {
+          return caches.match('/offline.html');
+        });
+      })
+    );
+  }
 });
