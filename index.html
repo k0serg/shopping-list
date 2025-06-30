@@ -12,29 +12,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-      font-size: 1.5em;
-      margin-bottom: 20px;
-    }
-
-    #shopping-form {
-      display: flex;
-      flex-direction: column;
-    }
-
+    /* Ваши стили остаются без изменений */
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+    h1 { text-align: center; color: #333; font-size: 1.5em; margin-bottom: 20px; }
+    #shopping-form { display: flex; flex-direction: column; }
     #item-input {
       width: 100%;
       padding: 12px;
@@ -43,7 +25,6 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-
     #add-button {
       padding: 12px;
       font-size: 16px;
@@ -53,10 +34,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
-    #add-button:hover {
-      background-color: #218838;
-    }
+    #add-button:hover { background-color: #218838; }
 
     .filters {
       display: flex;
@@ -201,26 +179,39 @@
     });
 
     async function getItemsFromDB() {
-      const tx = await dbPromise.transaction('items', 'readonly');
-      const store = await tx.objectStore('items');
-      return await store.getAll();
+      try {
+        const tx = await dbPromise.transaction('items', 'readonly');
+        const store = await tx.objectStore('items');
+        return await store.getAll();
+      } catch (err) {
+        console.error("❌ Ошибка чтения из IndexedDB:", err);
+        return [];
+      }
     }
 
     async function saveToDB(item) {
-      const tx = await dbPromise.transaction('items', 'readwrite');
-      const store = await tx.objectStore('items');
-      await store.put(item);
+      try {
+        const tx = await dbPromise.transaction('items', 'readwrite');
+        const store = await tx.objectStore('items');
+        await store.put(item);
+        console.log("✅ Сохранено в IndexedDB:", item);
+      } catch (err) {
+        console.error("❌ Ошибка сохранения в IndexedDB:", err);
+      }
     }
 
     async function deleteFromDB(id) {
-      const tx = await dbPromise.transaction('items', 'readwrite');
-      const store = await tx.objectStore('items');
-      await store.delete(id);
+      try {
+        const tx = await dbPromise.transaction('items', 'readwrite');
+        const store = await tx.objectStore('items');
+        await store.delete(id);
+      } catch (err) {
+        console.error("❌ Ошибка удаления из IndexedDB:", err);
+      }
     }
 
     async function syncData() {
-      const allItems = await getItemsFromDB();
-      items = allItems || [];
+      items = await getItemsFromDB();
       renderList();
     }
 
