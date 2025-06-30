@@ -12,11 +12,29 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <style>
-    /* Ваши стили остаются без изменений */
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-    h1 { text-align: center; color: #333; font-size: 1.5em; margin-bottom: 20px; }
-    #shopping-form { display: flex; flex-direction: column; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+
+    #shopping-form {
+      display: flex;
+      flex-direction: column;
+    }
+
     #item-input {
       width: 100%;
       padding: 12px;
@@ -25,6 +43,7 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+
     #add-button {
       padding: 12px;
       font-size: 16px;
@@ -34,7 +53,10 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    #add-button:hover { background-color: #218838; }
+
+    #add-button:hover {
+      background-color: #218838;
+    }
 
     .filters {
       display: flex;
@@ -155,64 +177,17 @@
 
   <ul id="shopping-list"></ul>
 
-  <!-- IDB библиотека -->
-  <script src="https://cdn.jsdelivr.net/npm/idb @7/build/umd.min.js"></script>
-
   <script>
     const form = document.getElementById('shopping-form');
     const input = document.getElementById('item-input');
     const list = document.getElementById('shopping-list');
     const filters = document.querySelectorAll('.filter-btn');
 
-    let items = [];
+    let items = JSON.parse(localStorage.getItem('shoppingList')) || [];
     let currentFilter = 'all';
 
-    // Подключение IndexedDB
-    const dbPromise = idb.openDB('shopping-list-db', 1, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains('items')) {
-          const store = db.createObjectStore('items', { keyPath: 'id' });
-          store.createIndex('text', 'text');
-          store.createIndex('completed', 'completed');
-        }
-      }
-    });
-
-    async function getItemsFromDB() {
-      try {
-        const tx = await dbPromise.transaction('items', 'readonly');
-        const store = await tx.objectStore('items');
-        return await store.getAll();
-      } catch (err) {
-        console.error("❌ Ошибка чтения из IndexedDB:", err);
-        return [];
-      }
-    }
-
-    async function saveToDB(item) {
-      try {
-        const tx = await dbPromise.transaction('items', 'readwrite');
-        const store = await tx.objectStore('items');
-        await store.put(item);
-        console.log("✅ Сохранено в IndexedDB:", item);
-      } catch (err) {
-        console.error("❌ Ошибка сохранения в IndexedDB:", err);
-      }
-    }
-
-    async function deleteFromDB(id) {
-      try {
-        const tx = await dbPromise.transaction('items', 'readwrite');
-        const store = await tx.objectStore('items');
-        await store.delete(id);
-      } catch (err) {
-        console.error("❌ Ошибка удаления из IndexedDB:", err);
-      }
-    }
-
-    async function syncData() {
-      items = await getItemsFromDB();
-      renderList();
+    function saveToLocalStorage() {
+      localStorage.setItem('shoppingList', JSON.stringify(items));
     }
 
     function renderList() {
@@ -238,23 +213,24 @@
           li.classList.add('completed');
         }
 
-        checkbox.addEventListener('change', async function () {
+        checkbox.addEventListener('change', function () {
           item.completed = checkbox.checked;
           if (checkbox.checked) {
             li.classList.add('completed');
           } else {
             li.classList.remove('completed');
           }
-          await saveToDB(item);
+          saveToLocalStorage();
         });
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Удалить';
         deleteButton.className = 'delete-button';
 
-        deleteButton.addEventListener('click', async function () {
-          await deleteFromDB(item.id);
-          await syncData();
+        deleteButton.addEventListener('click', function () {
+          items.splice(index, 1);
+          saveToLocalStorage();
+          renderList();
         });
 
         li.appendChild(checkbox);
@@ -265,20 +241,15 @@
       });
     }
 
-    form.addEventListener('submit', async function (event) {
+    form.addEventListener('submit', function (event) {
       event.preventDefault();
 
       const itemText = input.value.trim();
       if (itemText === '') return;
 
-      const newItem = {
-        id: Date.now(),
-        text: itemText,
-        completed: false
-      };
-
-      await saveToDB(newItem);
-      await syncData();
+      items.push({ text: itemText, completed: false });
+      saveToLocalStorage();
+      renderList();
 
       input.value = '';
       input.focus();
@@ -294,7 +265,7 @@
     });
 
     // Инициализация
-    syncData();
+    renderList();
 
     // Регистрация Service Worker
     if ('serviceWorker' in navigator) {
