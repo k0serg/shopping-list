@@ -6,8 +6,8 @@
   <title>🛒 Список покупок</title>
 
   <!-- Подключение манифеста -->
-  <link rel="manifest" href="/shopping-list/manifest.json">
-  <link rel="apple-touch-icon" href="/shopping-list/icons/icon-192x192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
@@ -127,7 +127,6 @@
       background-color: #c82333;
     }
 
-    /* Красивый чекбокс с анимацией */
     input[type="checkbox"] {
       appearance: none;
       -webkit-appearance: none;
@@ -174,31 +173,64 @@
       color: #888;
     }
 
-    /* Кнопка "Очистить всё" с анимацией */
-    #clear-button {
-      display: none;
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
       margin-top: 10px;
-      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .icon-button {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin: 0 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      position: relative;
+    }
+
+    .icon-button:hover {
+      background-color: #f1f1f1;
+      transform: scale(1.05);
+    }
+
+    .icon-button svg {
+      width: 20px;
+      height: 20px;
+      fill: #555;
+    }
+
+    .icon-button:hover svg {
+      fill: #333;
+    }
+
+    .tooltip {
+      visibility: hidden;
+      width: max-content;
+      background: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 4px;
+      padding: 4px 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%; /* выше кнопки */
+      left: 50%;
+      margin-left: -60px;
       opacity: 0;
-      transform: translateY(10px);
+      transition: opacity 0.3s;
+      white-space: nowrap;
+      font-size: 13px;
     }
 
-    #clear-button.show {
-      display: block;
+    .icon-button:hover .tooltip {
+      visibility: visible;
       opacity: 1;
-      transform: translateY(0);
-    }
-
-    #clear-button:hover {
-      background-color: #c82333;
     }
 
     @media (min-width: 600px) {
@@ -229,14 +261,26 @@
 
   <ul id="shopping-list"></ul>
 
-  <button id="clear-button">🗑 Очистить всё</button>
+  <!-- Иконки вместо текстовых кнопок -->
+  <div class="action-buttons">
+    <button class="icon-button" id="clear-completed-button" title="Очистить выполненные">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 8l-1.41-1.41L12 11.17 7.41 6.59 6 8l6 6 6-6z"/></svg>
+      <span class="tooltip">Очистить выполненные</span>
+    </button>
+    <button class="icon-button" id="clear-button" title="Очистить всё">
+      <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      <span class="tooltip">Очистить всё</span>
+    </button>
+  </div>
 
   <script>
     const form = document.getElementById('shopping-form');
     const input = document.getElementById('item-input');
     const list = document.getElementById('shopping-list');
     const filters = document.querySelectorAll('.filter-btn');
+
     const clearButton = document.getElementById('clear-button');
+    const clearCompletedButton = document.getElementById('clear-completed-button');
 
     let items = JSON.parse(localStorage.getItem('shoppingList')) || [];
     let currentFilter = 'all';
@@ -246,11 +290,12 @@
     }
 
     function updateClearButtonVisibility() {
-      if (items.length > 0) {
-        clearButton.classList.add('show');
-      } else {
-        clearButton.classList.remove('show');
-      }
+      clearButton.classList.toggle('show', items.length > 0);
+    }
+
+    function updateClearCompletedButtonVisibility() {
+      const hasCompletedItems = items.some(item => item.completed);
+      clearCompletedButton.classList.toggle('show', hasCompletedItems);
     }
 
     function renderList() {
@@ -285,6 +330,7 @@
           }
           saveToLocalStorage();
           updateClearButtonVisibility();
+          updateClearCompletedButtonVisibility();
         });
 
         const deleteButton = document.createElement('button');
@@ -305,6 +351,7 @@
       });
 
       updateClearButtonVisibility();
+      updateClearCompletedButtonVisibility();
     }
 
     form.addEventListener('submit', function (event) {
@@ -333,6 +380,14 @@
     clearButton.addEventListener('click', function () {
       if (confirm('Вы уверены, что хотите удалить все элементы?')) {
         items = [];
+        saveToLocalStorage();
+        renderList();
+      }
+    });
+
+    clearCompletedButton.addEventListener('click', function () {
+      if (confirm('Вы уверены, что хотите удалить выполненные элементы?')) {
+        items = items.filter(item => !item.completed);
         saveToLocalStorage();
         renderList();
       }

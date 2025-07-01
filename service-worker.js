@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shopping-list-cache-v3';
+const CACHE_NAME = 'shopping-list-cache-v4';
 const ASSETS_TO_CACHE = [
   '/shopping-list/',
   '/shopping-list/index.html',
