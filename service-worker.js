@@ -1,6 +1,6 @@
-const CACHE_NAME = 'shopping-list-cache-v4';
+const CACHE_NAME = 'shopping-list-cache-v6';
 const ASSETS_TO_CACHE = [
-  '/shopping-list/',
+  '/shopping-list',
   '/shopping-list/index.html',
   '/shopping-list/manifest.json',
   '/shopping-list/icons/icon-192x192.png',
