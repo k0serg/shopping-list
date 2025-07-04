@@ -4,37 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🛒 Список покупок</title>
-
   <!-- Подключение манифеста -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
   <style>
     * {
       box-sizing: border-box;
     }
-
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
       margin: 0;
       padding: 20px;
     }
-
     h1 {
       text-align: center;
       color: #333;
       font-size: 1.5em;
       margin-bottom: 20px;
     }
-
     #shopping-form {
       display: flex;
       flex-direction: column;
     }
-
     #item-input {
       width: 100%;
       padding: 12px;
@@ -43,7 +37,6 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-
     #add-button {
       padding: 12px;
       font-size: 16px;
@@ -54,18 +47,15 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-
     #add-button:hover {
       background-color: #218838;
     }
-
     .filters {
       display: flex;
       justify-content: space-around;
       margin-top: 10px;
       margin-bottom: 20px;
     }
-
     .filter-btn {
       flex: 1;
       padding: 8px;
@@ -77,18 +67,15 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-
     .filter-btn.active {
       background-color: #28a745;
       color: white;
     }
-
     ul {
       list-style-type: none;
       padding: 0;
       margin-top: 0;
     }
-
     li {
       background-color: white;
       padding: 12px;
@@ -100,17 +87,14 @@
       position: relative;
       transition: transform 0.2s ease;
     }
-
     li:hover {
       transform: scale(1.01);
     }
-
     .item-text {
       flex: 1;
       margin-right: 10px;
       transition: all 0.3s ease;
     }
-
     .delete-button {
       background-color: #dc3545;
       color: white;
@@ -122,11 +106,9 @@
       margin-left: 5px;
       transition: background-color 0.3s ease;
     }
-
     .delete-button:hover {
       background-color: #c82333;
     }
-
     input[type="checkbox"] {
       appearance: none;
       -webkit-appearance: none;
@@ -141,12 +123,10 @@
       position: relative;
       transition: background-color 0.3s ease, border-color 0.3s ease;
     }
-
     input[type="checkbox"]:checked {
       background-color: #28a745;
       border-color: #28a745;
     }
-
     input[type="checkbox"]:checked::after {
       content: "✓";
       color: white;
@@ -157,7 +137,6 @@
       opacity: 1;
       transform: rotate(0deg) scale(1);
     }
-
     input[type="checkbox"]::after {
       content: "";
       position: absolute;
@@ -167,18 +146,15 @@
       transform: rotate(-15deg) scale(0.8);
       transition: all 0.3s ease;
     }
-
     .completed .item-text {
       text-decoration: line-through;
       color: #888;
     }
-
     .action-buttons {
       display: flex;
       justify-content: space-between;
       margin-top: 10px;
     }
-
     .icon-button {
       flex: 1;
       display: flex;
@@ -193,18 +169,15 @@
       transition: background-color 0.3s ease, transform 0.2s ease;
       position: relative;
     }
-
     .icon-button:hover {
       background-color: #f1f1f1;
       transform: scale(1.05);
     }
-
     .icon-button svg {
       width: 20px;
       height: 20px;
       fill: #d9534f; /* 🔴 Красный цвет иконок */
     }
-
     .tooltip {
       visibility: hidden;
       width: max-content;
@@ -223,17 +196,14 @@
       white-space: nowrap;
       font-size: 13px;
     }
-
     .icon-button:hover .tooltip {
       visibility: visible;
       opacity: 1;
     }
-
     @media (min-width: 600px) {
       .filters {
         justify-content: center;
       }
-
       .filter-btn {
         margin: 0 10px;
       }
@@ -241,22 +211,17 @@
   </style>
 </head>
 <body>
-
   <h1>🛒 Список покупок</h1>
-
   <form id="shopping-form">
     <input type="text" id="item-input" placeholder="Введите товар..." required />
     <button type="submit" id="add-button">Добавить</button>
   </form>
-
   <div class="filters">
     <button class="filter-btn active" data-filter="all">Все</button>
     <button class="filter-btn" data-filter="active">Активные</button>
     <button class="filter-btn" data-filter="completed">Выполненные</button>
   </div>
-
   <ul id="shopping-list"></ul>
-
   <!-- Иконки вместо текстовых кнопок -->
   <div class="action-buttons">
     <button class="icon-button" id="clear-completed-button" title="Очистить выполненные">
@@ -268,21 +233,55 @@
       <span class="tooltip">Очистить всё</span>
     </button>
   </div>
-
   <script>
     const form = document.getElementById('shopping-form');
     const input = document.getElementById('item-input');
     const list = document.getElementById('shopping-list');
     const filters = document.querySelectorAll('.filter-btn');
-
     const clearButton = document.getElementById('clear-button');
     const clearCompletedButton = document.getElementById('clear-completed-button');
 
-    let items = JSON.parse(localStorage.getItem('shoppingList')) || [];
-    let currentFilter = 'all';
+    let db;
+    let items = [];
 
-    function saveToLocalStorage() {
-      localStorage.setItem('shoppingList', JSON.stringify(items));
+    // Открытие или создание IndexedDB
+    const request = indexedDB.open("ShoppingListDB", 1);
+
+    request.onupgradeneeded = function(event) {
+      db = event.target.result;
+      if (!db.objectStoreNames.contains("items")) {
+        const store = db.createObjectStore("items", { keyPath: "id" });
+        store.createIndex("by_order", "order", { unique: false });
+      }
+    };
+
+    request.onsuccess = function(event) {
+      db = event.target.result;
+      loadItems();
+    };
+
+    request.onerror = function(event) {
+      console.error("Ошибка открытия IndexedDB");
+    };
+
+    function saveToIndexedDB() {
+      const transaction = db.transaction(["items"], "readwrite");
+      const store = transaction.objectStore("items");
+      store.clear();
+      items.forEach((item, index) => {
+        store.put({ ...item, order: index });
+      });
+    }
+
+    function loadItems() {
+      const transaction = db.transaction(["items"], "readonly");
+      const store = transaction.objectStore("items");
+      const getAllRequest = store.getAll();
+
+      getAllRequest.onsuccess = function(event) {
+        items = event.target.result.sort((a, b) => a.order - b.order);
+        renderList();
+      };
     }
 
     function updateClearButtonVisibility() {
@@ -301,22 +300,17 @@
         if (currentFilter === 'active') return !item.completed;
         if (currentFilter === 'completed') return item.completed;
       });
-
       filteredItems.forEach((item, index) => {
         const li = document.createElement('li');
-
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = item.completed;
-
         const span = document.createElement('span');
         span.className = 'item-text';
         span.textContent = item.text;
-
         if (item.completed) {
           li.classList.add('completed');
         }
-
         checkbox.addEventListener('change', function () {
           item.completed = checkbox.checked;
           if (checkbox.checked) {
@@ -324,42 +318,34 @@
           } else {
             li.classList.remove('completed');
           }
-          saveToLocalStorage();
+          saveToIndexedDB();
           updateClearButtonVisibility();
           updateClearCompletedButtonVisibility();
         });
-
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Удалить';
         deleteButton.className = 'delete-button';
-
         deleteButton.addEventListener('click', function () {
           items.splice(index, 1);
-          saveToLocalStorage();
+          saveToIndexedDB();
           renderList();
         });
-
         li.appendChild(checkbox);
         li.appendChild(span);
         li.appendChild(deleteButton);
-
         list.appendChild(li);
       });
-
       updateClearButtonVisibility();
       updateClearCompletedButtonVisibility();
     }
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-
       const itemText = input.value.trim();
       if (itemText === '') return;
-
-      items.push({ text: itemText, completed: false });
-      saveToLocalStorage();
+      items.push({ text: itemText, completed: false, id: Date.now(), order: items.length });
+      saveToIndexedDB();
       renderList();
-
       input.value = '';
       input.focus();
     });
@@ -376,7 +362,7 @@
     clearButton.addEventListener('click', function () {
       if (confirm('Вы уверены, что хотите удалить все элементы?')) {
         items = [];
-        saveToLocalStorage();
+        saveToIndexedDB();
         renderList();
       }
     });
@@ -384,13 +370,10 @@
     clearCompletedButton.addEventListener('click', function () {
       if (confirm('Вы уверены, что хотите удалить выполненные элементы?')) {
         items = items.filter(item => !item.completed);
-        saveToLocalStorage();
+        saveToIndexedDB();
         renderList();
       }
     });
-
-    // Инициализация
-    renderList();
 
     // Регистрация Service Worker
     if ('serviceWorker' in navigator) {
