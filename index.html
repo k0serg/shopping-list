@@ -4,209 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🛒 Список покупок</title>
-  <!-- Подключение манифеста -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-      font-size: 1.5em;
-      margin-bottom: 20px;
-    }
-    #shopping-form {
-      display: flex;
-      flex-direction: column;
-    }
-    #item-input {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    #add-button {
-      padding: 12px;
-      font-size: 16px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    #add-button:hover {
-      background-color: #218838;
-    }
-    .filters {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-      margin-bottom: 20px;
-    }
-    .filter-btn {
-      flex: 1;
-      padding: 8px;
-      margin: 0 5px;
-      border: none;
-      border-radius: 5px;
-      background-color: #e9ecef;
-      color: #333;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .filter-btn.active {
-      background-color: #28a745;
-      color: white;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin-top: 0;
-    }
-    li {
-      background-color: white;
-      padding: 12px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      position: relative;
-      transition: transform 0.2s ease;
-    }
-    li:hover {
-      transform: scale(1.01);
-    }
-    .item-text {
-      flex: 1;
-      margin-right: 10px;
-      transition: all 0.3s ease;
-    }
-    .delete-button {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      font-size: 14px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-left: 5px;
-      transition: background-color 0.3s ease;
-    }
-    .delete-button:hover {
-      background-color: #c82333;
-    }
-    input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 22px;
-      height: 22px;
-      border: 2px solid #999;
-      border-radius: 5px;
-      outline: none;
-      margin-right: 10px;
-      cursor: pointer;
-      background-color: white;
-      position: relative;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-    input[type="checkbox"]:checked {
-      background-color: #28a745;
-      border-color: #28a745;
-    }
-    input[type="checkbox"]:checked::after {
-      content: "✓";
-      color: white;
-      font-size: 18px;
-      position: absolute;
-      top: 1px;
-      left: 4px;
-      opacity: 1;
-      transform: rotate(0deg) scale(1);
-    }
-    input[type="checkbox"]::after {
-      content: "";
-      position: absolute;
-      top: 1px;
-      left: 4px;
-      opacity: 0;
-      transform: rotate(-15deg) scale(0.8);
-      transition: all 0.3s ease;
-    }
-    .completed .item-text {
-      text-decoration: line-through;
-      color: #888;
-    }
-    .action-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .icon-button {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin: 0 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      position: relative;
-    }
-    .icon-button:hover {
-      background-color: #f1f1f1;
-      transform: scale(1.05);
-    }
-    .icon-button svg {
-      width: 20px;
-      height: 20px;
-      fill: #d9534f; /* 🔴 Красный цвет иконок */
-    }
-    .tooltip {
-      visibility: hidden;
-      width: max-content;
-      background: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 4px;
-      padding: 4px 8px;
-      position: absolute;
-      z-index: 1;
-      bottom: 125%; /* выше кнопки */
-      left: 50%;
-      margin-left: -60px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      white-space: nowrap;
-      font-size: 13px;
-    }
-    .icon-button:hover .tooltip {
-      visibility: visible;
-      opacity: 1;
-    }
+    /* Стили без изменений (скопированы из оригинального файла) */
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+    h1 { text-align: center; color: #333; font-size: 1.5em; margin-bottom: 20px; }
+    #shopping-form { display: flex; flex-direction: column; }
+    #item-input { width: 100%; padding: 12px; font-size: 16px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    #add-button { padding: 12px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease; }
+    #add-button:hover { background-color: #218838; }
+    .filters { display: flex; justify-content: space-around; margin-top: 10px; margin-bottom: 20px; }
+    .filter-btn { flex: 1; padding: 8px; margin: 0 5px; border: none; border-radius: 5px; background-color: #e9ecef; color: #333; cursor: pointer; transition: background-color 0.3s ease; }
+    .filter-btn.active { background-color: #28a745; color: white; }
+    ul { list-style-type: none; padding: 0; margin-top: 0; }
+    li { background-color: white; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; transition: transform 0.2s ease; }
+    li:hover { transform: scale(1.01); }
+    .item-text { flex: 1; margin-right: 10px; transition: all 0.3s ease; }
+    .delete-button { background-color: #dc3545; color: white; border: none; padding: 6px 10px; font-size: 14px; border-radius: 5px; cursor: pointer; margin-left: 5px; transition: background-color 0.3s ease; }
+    .delete-button:hover { background-color: #c82333; }
+    input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border: 2px solid #999; border-radius: 5px; outline: none; margin-right: 10px; cursor: pointer; background-color: white; position: relative; transition: background-color 0.3s ease, border-color 0.3s ease; }
+    input[type="checkbox"]:checked { background-color: #28a745; border-color: #28a745; }
+    input[type="checkbox"]:checked::after { content: "✓"; color: white; font-size: 18px; position: absolute; top: 1px; left: 4px; opacity: 1; transform: rotate(0deg) scale(1); }
+    input[type="checkbox"]::after { content: ""; position: absolute; top: 1px; left: 4px; opacity: 0; transform: rotate(-15deg) scale(0.8); transition: all 0.3s ease; }
+    .completed .item-text { text-decoration: line-through; color: #888; }
+    .action-buttons { display: flex; justify-content: space-between; margin-top: 10px; }
+    .icon-button { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; background-color: #fff; border: 1px solid #ccc; border-radius: 5px; margin: 0 5px; cursor: pointer; transition: background-color 0.3s ease, transform 0.2s ease; position: relative; }
+    .icon-button:hover { background-color: #f1f1f1; transform: scale(1.05); }
+    .icon-button svg { width: 20px; height: 20px; fill: #d9534f; }
+    .tooltip { visibility: hidden; width: max-content; background: #333; color: #fff; text-align: center; border-radius: 4px; padding: 4px 8px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; white-space: nowrap; font-size: 13px; }
+    .icon-button:hover .tooltip { visibility: visible; opacity: 1; }
     @media (min-width: 600px) {
-      .filters {
-        justify-content: center;
-      }
-      .filter-btn {
-        margin: 0 10px;
-      }
+      .filters { justify-content: center; }
+      .filter-btn { margin: 0 10px; }
     }
   </style>
 </head>
@@ -233,6 +66,7 @@
       <span class="tooltip">Очистить всё</span>
     </button>
   </div>
+
   <script>
     const form = document.getElementById('shopping-form');
     const input = document.getElementById('item-input');
@@ -243,6 +77,7 @@
 
     let db;
     let items = [];
+    let currentFilter = 'all';
 
     // Открытие или создание IndexedDB
     const request = indexedDB.open("ShoppingListDB", 1);
@@ -257,7 +92,10 @@
 
     request.onsuccess = function(event) {
       db = event.target.result;
-      loadItems();
+      loadItems().then(() => {
+        renderList(); // Рендерим только после загрузки
+        setupEventListeners(); // Подключаем события только после полной инициализации
+      });
     };
 
     request.onerror = function(event) {
@@ -265,23 +103,30 @@
     };
 
     function saveToIndexedDB() {
-      const transaction = db.transaction(["items"], "readwrite");
-      const store = transaction.objectStore("items");
-      store.clear();
-      items.forEach((item, index) => {
-        store.put({ ...item, order: index });
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["items"], "readwrite");
+        const store = transaction.objectStore("items");
+        store.clear();
+        items.forEach((item, index) => {
+          store.put({ ...item, order: index });
+        });
+        transaction.oncomplete = resolve;
+        transaction.onerror = reject;
       });
     }
 
     function loadItems() {
-      const transaction = db.transaction(["items"], "readonly");
-      const store = transaction.objectStore("items");
-      const getAllRequest = store.getAll();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["items"], "readonly");
+        const store = transaction.objectStore("items");
+        const getAllRequest = store.getAll();
 
-      getAllRequest.onsuccess = function(event) {
-        items = event.target.result.sort((a, b) => a.order - b.order);
-        renderList();
-      };
+        getAllRequest.onsuccess = function(event) {
+          items = event.target.result.sort((a, b) => a.order - b.order);
+          resolve();
+        };
+        getAllRequest.onerror = reject;
+      });
     }
 
     function updateClearButtonVisibility() {
@@ -300,80 +145,89 @@
         if (currentFilter === 'active') return !item.completed;
         if (currentFilter === 'completed') return item.completed;
       });
+
       filteredItems.forEach((item, index) => {
         const li = document.createElement('li');
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = item.completed;
+
         const span = document.createElement('span');
         span.className = 'item-text';
         span.textContent = item.text;
+
         if (item.completed) {
           li.classList.add('completed');
         }
-        checkbox.addEventListener('change', function () {
+
+        checkbox.addEventListener('change', async () => {
           item.completed = checkbox.checked;
           if (checkbox.checked) {
             li.classList.add('completed');
           } else {
             li.classList.remove('completed');
           }
-          saveToIndexedDB();
+          await saveToIndexedDB();
           updateClearButtonVisibility();
           updateClearCompletedButtonVisibility();
         });
+
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Удалить';
         deleteButton.className = 'delete-button';
-        deleteButton.addEventListener('click', function () {
+        deleteButton.addEventListener('click', async () => {
           items.splice(index, 1);
-          saveToIndexedDB();
+          await saveToIndexedDB();
           renderList();
         });
+
         li.appendChild(checkbox);
         li.appendChild(span);
         li.appendChild(deleteButton);
         list.appendChild(li);
       });
+
       updateClearButtonVisibility();
       updateClearCompletedButtonVisibility();
     }
 
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-      const itemText = input.value.trim();
-      if (itemText === '') return;
-      items.push({ text: itemText, completed: false, id: Date.now(), order: items.length });
-      saveToIndexedDB();
-      renderList();
-      input.value = '';
-      input.focus();
-    });
-
-    filters.forEach(btn => {
-      btn.addEventListener('click', function () {
-        filters.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
+    function setupEventListeners() {
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const itemText = input.value.trim();
+        if (itemText === '') return;
+        items.push({ text: itemText, completed: false, id: Date.now(), order: items.length });
+        await saveToIndexedDB();
         renderList();
+        input.value = '';
+        input.focus();
       });
-    });
 
-    clearButton.addEventListener('click', function () {
-      if (confirm('Вы уверены, что хотите удалить все элементы?')) {
-        items = [];
-        saveToIndexedDB();
-        renderList();
-      }
-    });
+      filters.forEach(btn => {
+        btn.addEventListener('click', function () {
+          filters.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          renderList();
+        });
+      });
 
-    clearCompletedButton.addEventListener('click', function () {
-      if (confirm('Вы уверены, что хотите удалить выполненные элементы?')) {
-        items = items.filter(item => !item.completed);
-        saveToIndexedDB();
-        renderList();
-      }
-    });
+      clearButton.addEventListener('click', async function () {
+        if (confirm('Вы уверены, что хотите удалить все элементы?')) {
+          items = [];
+          await saveToIndexedDB();
+          renderList();
+        }
+      });
+
+      clearCompletedButton.addEventListener('click', async function () {
+        if (confirm('Вы уверены, что хотите удалить выполненные элементы?')) {
+          items = items.filter(item => !item.completed);
+          await saveToIndexedDB();
+          renderList();
+        }
+      });
+    }
 
     // Регистрация Service Worker
     if ('serviceWorker' in navigator) {
